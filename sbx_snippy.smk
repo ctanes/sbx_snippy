@@ -54,8 +54,8 @@ rule sga_snippy:
         LOG_FP / "sga_snippy_{sample}.log",
     params:
         reference=Cfg["sbx_snippy"]["reference_fp"],
-        out_dir = str(ISOLATE_FP / "snippy" / "{sample}"),
-        min_reads=Cfg["sbx_snippy"]["min_reads"] 
+        out_dir=str(ISOLATE_FP / "snippy" / "{sample}"),
+        contigs=str(ISOLATE_FP / "shovill" / "{sample}" / "{sample}.fa")
     benchmark:
         BENCHMARK_FP / "sga_snippy_{sample}.tsv"
     conda:
@@ -64,7 +64,7 @@ rule sga_snippy:
     #    f"docker://sunbeamlabs/sbx_snippy:{SBX_TEMPLATE_VERSION}"
     shell:
         """
-        if [ $(zgrep -c "^@" {input.rp1}) -gt {params.min_reads} ]; then
+        if [ -s {params.contigs} ]; then
             snippy --force --reference {params.reference} --R1 {input.rp1} --R2 {input.rp2} --outdir {params.out_dir} &> {log};
         else
             echo -e "CHROM\tPOS\tTYPE\tREF\tALT\tEVIDENCE\tFTYPE\tSTRAND\tNT_POS\tAA_POS\tEFFECT\tLOCUS_TAG\tGENE\tPRODUCT" > {output}
